@@ -1,0 +1,4 @@
+spring:
+  messages:
+    basename: ValidationMessages
+    encoding: utf-8
