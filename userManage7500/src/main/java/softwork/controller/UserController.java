@@ -16,6 +16,11 @@ public class UserController {
     @Autowired
     UserServiceImpl userService;
 
+    @GetMapping("/hello")
+    public String hello(){
+        return "hello";
+    }
+
     @PostMapping("/register")
     public WebAsyncTask<Object> register(@RequestBody @Validated UserRegisterDTO dto){
         return new WebAsyncTask<>(()->{
