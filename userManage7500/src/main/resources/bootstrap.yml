@@ -4,3 +4,6 @@ spring:
   messages:
     basename: ValidationMessages
     encoding: utf-8
+
+server:
+  port: 7500
