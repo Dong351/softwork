@@ -61,5 +61,10 @@ public class UserController {
         });
     }
 
+    @GetMapping("/getInfo")
+    public WebAsyncTask<Object> getInfo(@Token User user){
+        return new WebAsyncTask<>(()-> JsonResult.ok(userService.getInfo(user)));
+    }
+
 
 }

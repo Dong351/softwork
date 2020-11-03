@@ -2,6 +2,7 @@ package softwork.service;
 
 import softwork.pojo.dto.*;
 import softwork.pojo.entities.User;
+import softwork.pojo.vo.UserInfoVO;
 
 public interface UserService {
 
@@ -58,4 +59,7 @@ public interface UserService {
      * @param dto
      */
     public void resetPassword(UserResetPasswordDTO dto);
+
+    UserInfoVO getInfo(User user);
+
 }
