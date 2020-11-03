@@ -11,6 +11,7 @@
         <module>gateway82</module>
         <module>userManage7500</module>
         <module>softwork-api-common</module>
+        <module>team8500</module>
     </modules>
     <packaging>pom</packaging>
 
