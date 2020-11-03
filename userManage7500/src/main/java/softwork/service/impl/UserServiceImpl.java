@@ -186,4 +186,12 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    public UserInfoVO getInfo(User user) {
+        System.out.println(user);
+        UserInfoVO info = new UserInfoVO();
+        BeanUtils.copyProperties(user,info);
+        info.setAccesstoken(null);
+        return info;
+    }
 }
