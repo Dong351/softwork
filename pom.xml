@@ -12,6 +12,7 @@
         <module>userManage7500</module>
         <module>softwork-api-common</module>
         <module>team8500</module>
+        <module>message8600</module>
     </modules>
     <packaging>pom</packaging>
 

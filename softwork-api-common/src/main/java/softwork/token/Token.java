@@ -10,7 +10,7 @@ import java.lang.annotation.*;
  * <p>
  * Supported types are:
  * <ul>
- * <li>{@code {@link User } 获得token对应的user实例</li>
+ * <li>{@code {@link  } 获得token对应的user实例</li>
  * <li>{@code {@link Integer }}获得token对应User的uid</li>
  * </ul>
  */
