@@ -53,16 +53,72 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Object JoinTeamRequest(Integer teamid, User user) {
+    public Object JoinTeamRequest(String requestContain, Integer teamid, User user) {
+        //查找是否已经申请
+        Message findExist = new Message();
+        findExist.setTid(teamid);
+        findExist.setSend_uid(user.getId());
+        if(messageMapper.select(findExist) != null){
+            throw new CommonException("您已申请！");
+        }
+
         Message message = new Message();
         message.setTid(teamid);
         message.setCreate_time(new Date());
         message.setSend_uid(user.getId());
         Team team = teamMapper.selectByPrimaryKey(teamid);
         message.setReceive_uid(team.getOwnerid());
-        message.setContain(user.getUsername() + "申请加入您的队伍 " + team.getName());
+        message.setContain(requestContain);
         message.setType(2);
         messageMapper.insert(message);
+        return null;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Object DealTeamRequest(Integer messageid, Integer deal, User user) {
+//        if(messageid != 2 && messageid != 1){
+//            throw new CommonException("不是队伍申请信息");
+//        }
+        Message message = messageMapper.selectByPrimaryKey(messageid);
+        Integer tid = message.getTid();
+        Team team = teamMapper.selectByPrimaryKey(tid);
+
+        //权限判断
+        if(user.getId() != team.getOwnerid()){
+            throw new CommonException("您不是队长，无权限审批");
+        }
+
+
+        TeamPartner teamPartner = new TeamPartner();
+        Message returnMessage = new Message();
+        returnMessage.setType(3);
+        returnMessage.setSend_uid(user.getId());
+        returnMessage.setTid(tid);
+        returnMessage.setReceive_uid(message.getSend_uid());
+        returnMessage.setCreate_time(new Date());
+        //处理结果1为同意 0为拒绝,并发送回信
+        if(deal == 1){
+            teamPartner.setTid(tid);
+            teamPartner.setUid(message.getSend_uid());
+            teamPartner.setCreate_time(new Date());
+            teamPartnerMapper.insert(teamPartner);
+            returnMessage.setContain("队伍："+team.getName()+" 已同意你的入队申请");
+        }
+        else if(deal == 0){
+            returnMessage.setContain("队伍："+team.getName()+" 拒绝你的入队申请");
+        }
+        messageMapper.insert(returnMessage);
+
+        //更新messgae的type
+        message.setType(0);
+        messageMapper.updateByPrimaryKeySelective(message);
+        return null;
+    }
+
+    @Override
+    public Object ShowJoinedTeam(User user) {
+
         return null;
     }
 }

@@ -15,9 +15,27 @@ public interface TeamService {
     /**
      * 申请加入队伍
      *
+     *
+     * @param requestContain
      * @param teamid
      * @param user
      * @return
      */
-    Object JoinTeamRequest(Integer teamid, User user);
+    Object JoinTeamRequest(String requestContain, Integer teamid, User user);
+
+    /**
+     * 处理队伍申请
+     * @param messageid
+     * @param deal
+     * @param user
+     * @return
+     */
+    Object DealTeamRequest(Integer messageid, Integer deal, User user);
+
+    /**
+     * 查看自己加入了哪些队伍
+     * @param user
+     * @return
+     */
+    Object ShowJoinedTeam(User user);
 }

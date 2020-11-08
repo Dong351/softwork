@@ -2,10 +2,14 @@ package softwork.pojo.entities;
 
 import lombok.Data;
 
+import javax.persistence.Id;
 import java.util.Date;
 
 @Data
 public class Message {
+    @Id
+    private Integer mid;
+
     private Integer tid;
 
     private Integer send_uid;
