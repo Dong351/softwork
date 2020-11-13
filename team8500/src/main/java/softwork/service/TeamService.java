@@ -38,4 +38,11 @@ public interface TeamService {
      * @return
      */
     Object ShowJoinedTeam(User user);
+
+    /**
+     * 查看指定队伍详情
+     * @param teamid
+     * @return
+     */
+    Object GetTeamInfo(Integer teamid);
 }

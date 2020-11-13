@@ -45,10 +45,17 @@ public class TeamController {
         });
     }
 
-    @GetMapping("/joined}")
+    @GetMapping("/joined")
     public WebAsyncTask<Object> JoinedTeam(@Token User user){
         return new WebAsyncTask<>(()->{
             return JsonResult.ok(teamService.ShowJoinedTeam(user));
+        });
+    }
+
+    @GetMapping("/{teamid}")
+    public WebAsyncTask<Object> GetTeamInfo(@PathVariable Integer teamid){
+        return new WebAsyncTask<>(()->{
+            return JsonResult.ok(teamService.GetTeamInfo(teamid));
         });
     }
 

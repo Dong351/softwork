@@ -1,8 +1,11 @@
 package softwork.service;
 
+import org.springframework.web.multipart.MultipartFile;
 import softwork.pojo.dto.*;
 import softwork.pojo.entities.User;
 import softwork.pojo.vo.UserInfoVO;
+
+import java.io.IOException;
 
 public interface UserService {
 
@@ -62,4 +65,10 @@ public interface UserService {
 
     UserInfoVO getInfo(User user);
 
+    /**
+     * 上传用户头像
+     * @param avatar
+     * @param user
+     */
+    void UploadAvatar(MultipartFile avatar, User user) throws IOException;
 }

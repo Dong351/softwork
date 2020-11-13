@@ -8,5 +8,9 @@ spring:
   #返回的json设置
   jackson:
     default-property-inclusion: non_null
+  servlet:
+    multipart:
+      max-request-size: 10MB
+      max-file-size: 10MB
 server:
   port: 7500

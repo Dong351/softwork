@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.WebAsyncTask;
+import org.springframework.web.multipart.MultipartFile;
 import softwork.pojo.dto.*;
 import softwork.pojo.entities.User;
 import softwork.service.impl.UserServiceImpl;
@@ -64,6 +65,14 @@ public class UserController {
     @GetMapping("/getInfo")
     public WebAsyncTask<Object> getInfo(@Token User user){
         return new WebAsyncTask<>(()-> JsonResult.ok(userService.getInfo(user)));
+    }
+
+    @PostMapping("/uploadAvatar")
+    public WebAsyncTask<Object> UploadAvatar(@RequestParam("avatar") MultipartFile avatar, @Token User user){
+        return new WebAsyncTask<>(()->{
+            userService.UploadAvatar(avatar,user);
+            return JsonResult.ok();
+        });
     }
 
 

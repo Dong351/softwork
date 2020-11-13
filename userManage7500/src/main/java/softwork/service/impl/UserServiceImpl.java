@@ -5,6 +5,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import softwork.exception.CommonException;
 import softwork.mapper.ResetMailCodeMapper;
 import softwork.mapper.UserMapper;
@@ -13,7 +14,11 @@ import softwork.pojo.entities.ResetMailCode;
 import softwork.pojo.entities.User;
 import softwork.pojo.vo.UserInfoVO;
 import softwork.service.UserService;
+import softwork.utils.HttpUtils;
+import softwork.utils.UploadFileStatus;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -193,5 +198,26 @@ public class UserServiceImpl implements UserService {
         BeanUtils.copyProperties(user,info);
         info.setAccesstoken(null);
         return info;
+    }
+
+    @Override
+    public void UploadAvatar(MultipartFile avatar, User user) throws IOException {
+        FileInputStream inputStream = (FileInputStream) avatar.getInputStream();
+        UploadFileStatus fileStatus = new UploadFileStatus();
+        // 上传到服务器后的文件名
+        fileStatus.setFileName(user.getId().toString());
+        // 上传到服务器的哪个位置
+        fileStatus.setFilePath("/root/usr/local/webfile/softwork/");
+        // 文件的大小
+        fileStatus.setFileSize(inputStream.available());
+        // 文件的类型
+        fileStatus.setFileType("png");
+        fileStatus.setInputStream(inputStream);
+        String result = HttpUtils.postFile("http://49.234.239.138:3000/upload", fileStatus);
+        System.out.println(result);
+
+        //将url更新到user表
+        user.setAvatar_url("http://49.234.239.138:3000/avatar/"+user.getId()+".png");
+        userMapper.updateByPrimaryKey(user);
     }
 }
