@@ -8,14 +8,20 @@ import softwork.exception.CommonException;
 import softwork.mapper.MessageMapper;
 import softwork.mapper.TeamMapper;
 import softwork.mapper.TeamPartnerMapper;
+import softwork.mapper.UserMapper;
 import softwork.pojo.dto.TeamCreateDTO;
 import softwork.pojo.entities.Message;
 import softwork.pojo.entities.Team;
 import softwork.pojo.entities.TeamPartner;
 import softwork.pojo.entities.User;
+import softwork.pojo.vo.TeamInfoVO;
+import softwork.pojo.vo.TeamJoinedVO;
+import softwork.pojo.vo.TeamPartnerVO;
 import softwork.service.TeamService;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class TeamServiceImpl implements TeamService {
@@ -25,6 +31,8 @@ public class TeamServiceImpl implements TeamService {
     TeamPartnerMapper teamPartnerMapper;
     @Autowired
     MessageMapper messageMapper;
+    @Autowired
+    UserMapper userMapper;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -118,7 +126,64 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public Object ShowJoinedTeam(User user) {
+        TeamPartner findJoined = new TeamPartner();
+        findJoined.setUid(user.getId());
+        List<TeamPartner> joined = teamPartnerMapper.select(findJoined);
+        List<TeamJoinedVO> joinedVOS = new ArrayList<>();
+        for(TeamPartner teamPartner:joined){
+            TeamJoinedVO teamJoinedVO = new TeamJoinedVO();
+            teamJoinedVO.setTid(teamPartner.getTid());
+            Team team = teamMapper.selectByPrimaryKey(teamPartner.getTid());
+            teamJoinedVO.setTName(team.getName());
+            teamJoinedVO.setLeaderAvatarUrl(userMapper.selectByPrimaryKey(team.getOwnerid()).getAvatar_url());
+            teamJoinedVO.setCreate_time(team.getCreate_time());
 
-        return null;
+
+            //依次将队友的头像url插入string[]中
+            TeamPartner findAllPartner = new TeamPartner();
+            findAllPartner.setTid(team.getTid());
+            List<TeamPartner> partners = teamPartnerMapper.select(findAllPartner);
+            teamJoinedVO.setTCount(partners.size());
+            String[] partnerAvatarUrl = new String[partners.size()-1];
+            int i = 0;
+            for(TeamPartner teamPartner1:partners){
+                if(teamPartner1.getUid() == team.getOwnerid())
+                    continue;
+                String partnerUrl = userMapper.selectByPrimaryKey(teamPartner1.getUid()).getAvatar_url();
+                System.out.println(partnerUrl);
+                partnerAvatarUrl[i++] = partnerUrl;
+            }
+            teamJoinedVO.setTeamPartnerUrls(partnerAvatarUrl);
+            joinedVOS.add(teamJoinedVO);
+        }
+
+
+        return joinedVOS;
+    }
+
+    @Override
+    public Object GetTeamInfo(Integer teamid) {
+        Team team = teamMapper.selectByPrimaryKey(teamid);
+        TeamInfoVO teamInfoVO = new TeamInfoVO();
+        List<TeamPartnerVO> teamPartnerVOS= new ArrayList<TeamPartnerVO>();
+        BeanUtils.copyProperties(team,teamInfoVO);
+        teamInfoVO.setTeam_description(team.getDescription());
+        TeamPartner findAllPartner = new TeamPartner();
+        findAllPartner.setTid(teamid);
+
+        List<TeamPartner> teamPartners = teamPartnerMapper.select(findAllPartner);
+        for(TeamPartner teamPartner:teamPartners){
+            User user = userMapper.selectByPrimaryKey(teamPartner.getUid());
+            TeamPartnerVO teamPartnerVO = new TeamPartnerVO();
+            teamPartnerVO.setPosition(0);
+            if(user.getId() == team.getOwnerid())
+                teamPartnerVO.setPosition(1);
+            teamPartnerVO.setDescription(user.getDescription());
+            teamPartnerVO.setUname(user.getUsername());
+            teamPartnerVO.setUid(user.getId());
+            teamPartnerVOS.add(teamPartnerVO);
+        }
+        teamInfoVO.setTeamPartners(teamPartnerVOS);
+        return teamInfoVO;
     }
 }

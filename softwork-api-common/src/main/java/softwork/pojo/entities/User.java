@@ -16,4 +16,6 @@ public class User {
     private String email;
     private Integer type;
     private String accesstoken;
+    private String avatar_url;
+    private String description;
 }
