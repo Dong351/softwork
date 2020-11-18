@@ -1,0 +1,23 @@
+spring:
+  #部署时使用的配置文件
+  profiles:
+    active: pro
+  messages:
+    basename: ValidationMessages
+    encoding: utf-8
+  #返回的json设置
+  jackson:
+    default-property-inclusion: non_null
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  servlet:
+    multipart:
+      max-request-size: 10MB
+      max-file-size: 10MB
+server:
+  port: 8005
+
+pagehelper:
+  helper-dialect: mysql
+  support-methods-arguments: true
+  params: count=countSql
