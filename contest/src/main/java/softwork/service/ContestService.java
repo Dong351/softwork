@@ -1,6 +1,7 @@
 package softwork.service;
 
 import com.github.pagehelper.PageInfo;
+import org.springframework.data.domain.Page;
 import softwork.pojo.dto.PageDTO;
 import softwork.pojo.entities.Contest;
 
@@ -15,4 +16,6 @@ public interface ContestService {
     List<String> getAllType();
 
     List<String> getAllLevel();
+
+    Page<Contest> searchByKeyWord(String keyword, PageDTO dto, Contest contest);
 }
