@@ -137,14 +137,48 @@ public class UserServiceImpl implements UserService {
         //登陆成功则返回token
         updateToken(user);
 
+        User returnUser = new User();
+        returnUser.setAccesstoken(user.getAccesstoken());
+        returnUser.setId(user.getId());
+
         //返回用户信息
-        return getUserInfoVO(user);
+        return returnUser;
     }
 
 
     public Object updateUserInfo(UserUpdateDTO dto, User user) {
+        System.out.println(dto);
+        //判断电话和邮箱是否存在
+        User findPhoneExist = new User();
+        User findEmailExist = new User();
+        findPhoneExist.setPhone(dto.getPhone());
+        findEmailExist.setEmail(dto.getEmail());
+        User phoneExist = new User();
+        User emailExist = new User();
+
+        if(dto.getPhone() != null){
+            phoneExist = userMapper.selectOne(findPhoneExist);
+            if(phoneExist != null){
+                if(phoneExist.getId() != user.getId()){
+                    throw new CommonException("该电话已注册！");
+                }
+            }
+        }
+
+        if (dto.getEmail() != null){
+            emailExist = userMapper.selectOne(findEmailExist);
+            if(emailExist != null){
+                if(emailExist.getId() != user.getId()){
+                    throw new CommonException("该邮箱已注册！");
+                }
+            }
+        }
+
+
+
         User updateUser = new User();
         BeanUtils.copyProperties(dto,updateUser);
+
 
         updateUser.setId(user.getId());
         userMapper.updateByPrimaryKeySelective(updateUser);
@@ -192,10 +226,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserInfoVO getInfo(User user) {
-        System.out.println(user);
+    public UserInfoVO getInfo(Integer uid, User user) {
+        User findUser = userMapper.selectByPrimaryKey(uid);
         UserInfoVO info = new UserInfoVO();
-        BeanUtils.copyProperties(user,info);
+        if(uid == 0)
+            BeanUtils.copyProperties(user,info);
+        else
+            BeanUtils.copyProperties(findUser,info);
         info.setAccesstoken(null);
         return info;
     }

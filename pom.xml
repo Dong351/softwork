@@ -14,7 +14,7 @@
         <module>team8500</module>
         <module>message8600</module>
         <module>upload3000</module>
-        <module>chat</module>
+        <module>chat5000</module>
     </modules>
     <packaging>pom</packaging>
 
