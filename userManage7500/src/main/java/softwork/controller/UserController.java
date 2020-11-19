@@ -62,9 +62,9 @@ public class UserController {
         });
     }
 
-    @GetMapping("/getInfo")
-    public WebAsyncTask<Object> getInfo(@Token User user){
-        return new WebAsyncTask<>(()-> JsonResult.ok(userService.getInfo(user)));
+    @GetMapping("/getInfo/{uid}")
+    public WebAsyncTask<Object> getInfo(@PathVariable Integer uid,@Token User user){
+        return new WebAsyncTask<>(()-> JsonResult.ok(userService.getInfo(uid,user)));
     }
 
     @PostMapping("/uploadAvatar")
