@@ -35,5 +35,10 @@ public class ContestController {
         return new WebAsyncTask<>(()-> JsonResult.ok(contestService.getAllLevel()));
     }
 
+    @GetMapping("/search")
+    public WebAsyncTask<Object> searchByKeyword(String keyword,PageDTO dto,Contest contest){
+        return new WebAsyncTask<>(()-> JsonResult.ok(contestService.searchByKeyWord(keyword,dto,contest)));
+    }
+
 
 }
