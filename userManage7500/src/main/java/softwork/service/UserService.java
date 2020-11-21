@@ -63,7 +63,7 @@ public interface UserService {
      */
     public void resetPassword(UserResetPasswordDTO dto);
 
-    UserInfoVO getInfo(User user);
+    UserInfoVO getInfo(Integer uid, User user);
 
     /**
      * 上传用户头像

@@ -27,6 +27,5 @@ public class UserRegisterDTO {
     @Email(message = "邮箱格式有误")
     private String email;
 
-    @NotBlank(message = "学号不能为空")
-    private String sno;
+    private Integer sex;
 }

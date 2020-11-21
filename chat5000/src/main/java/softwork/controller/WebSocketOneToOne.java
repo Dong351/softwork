@@ -4,10 +4,10 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
-import softwork.service.impl.ChatMessageServiceImpl;
 import softwork.mapper.UserMapper;
-import softwork.pojo.entities.ChatMessage;
+import softwork.pojo.entities.Message;
 import softwork.pojo.entities.User;
+import softwork.service.impl.MessageServiceImpl;
 import softwork.service.impl.UserServiceImpl;
 import softwork.utils.MapUnite;
 
@@ -36,14 +36,11 @@ public class WebSocketOneToOne {
     public void setUserService(UserServiceImpl userService) {
         WebSocketOneToOne.userService = userService;
     }
-    private static ChatMessageServiceImpl messageService;
+    private static MessageServiceImpl messageService;
     @Autowired
-    public void setChatMsgService(ChatMessageServiceImpl messageService) {
+    public void setChatMsgService(MessageServiceImpl messageService) {
         WebSocketOneToOne.messageService = messageService;
     }
-
-    @Autowired
-    UserMapper userMapper;
 
     // 静态变量，用来记录当前在线连接数。应该把它设计成线程安全的。
     private static int onlineCount;
@@ -53,6 +50,9 @@ public class WebSocketOneToOne {
     private Session session;
     private String sendId;
     private String roomId;
+
+    @Autowired
+    UserMapper userMapper;
 
 
     /**
@@ -99,7 +99,7 @@ public class WebSocketOneToOne {
         String msg = (String) json.get("message");  //需要发送的信息
         String receiveId = (String) json.get("receiveId");      //发送对象的用户标识(接收者)
         String type = (String) json.get("type");      //发送对象的用户标识(接收者)
-        send(msg,sendId,receiveId,roomId, Integer.valueOf(type));
+        send(msg,sendId,receiveId,roomId,type);
     }
 
     /**
@@ -116,16 +116,18 @@ public class WebSocketOneToOne {
 
 
     //发送给指定角色
-    public void send(String msg,String sendId,String receiveId,String roomId,Integer type){
-        ChatMessage message = new ChatMessage();
-        message.setContent(msg);
+    public void send(String msg,String sendId,String receiveId,String roomId,String type){
+        Message message = new Message();
+        message.setContain(msg);
         message.setCreate_time(new Date());
-        message.setReceive_id(Integer.valueOf(receiveId));
-        message.setRoom_id(Integer.valueOf(roomId));
-        message.setSend_id(Integer.valueOf(sendId));
-        message.setType(type);
+        message.setReceive_uid(Integer.valueOf(receiveId));
+        message.setTid(Integer.valueOf(roomId));
+        message.setSend_uid(Integer.valueOf(sendId));
+        message.setType(Integer.valueOf(type));
+        System.out.println(message);
 
         try {
+            System.out.println(Integer.valueOf(sendId));
             User u = userMapper.selectByPrimaryKey(Integer.valueOf(sendId));
             System.out.println(u);
             //to指定用户
