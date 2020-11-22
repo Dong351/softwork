@@ -5,15 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import softwork.exception.CommonException;
-import softwork.mapper.MessageMapper;
-import softwork.mapper.TeamMapper;
-import softwork.mapper.TeamPartnerMapper;
-import softwork.mapper.UserMapper;
+import softwork.mapper.*;
 import softwork.pojo.dto.TeamCreateDTO;
-import softwork.pojo.entities.Message;
-import softwork.pojo.entities.Team;
-import softwork.pojo.entities.TeamPartner;
-import softwork.pojo.entities.User;
+import softwork.pojo.entities.*;
 import softwork.pojo.vo.TeamInfoVO;
 import softwork.pojo.vo.TeamJoinedVO;
 import softwork.pojo.vo.TeamPartnerVO;
@@ -33,10 +27,12 @@ public class TeamServiceImpl implements TeamService {
     MessageMapper messageMapper;
     @Autowired
     UserMapper userMapper;
+    @Autowired
+    ClickLimitMapper clickLimitMapper;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Object Create(TeamCreateDTO dto, User user) {
+    public Object Create(Integer contestId, TeamCreateDTO dto, User user) {
         if(teamMapper.SelectCountByOnwerId(user.getId()) > 10){
             throw new CommonException("创建队伍不可超过10个！");
         }
@@ -44,6 +40,7 @@ public class TeamServiceImpl implements TeamService {
         //插入team表
         Team team = new Team();
         BeanUtils.copyProperties(dto,team);
+        team.setContest_id(contestId);
         team.setName(dto.getTeamName());
         team.setCreate_time(new Date());
         team.setOwnerid(user.getId());
@@ -137,6 +134,7 @@ public class TeamServiceImpl implements TeamService {
             teamJoinedVO.setTName(team.getName());
             teamJoinedVO.setLeaderAvatarUrl(userMapper.selectByPrimaryKey(team.getOwnerid()).getAvatar_url());
             teamJoinedVO.setCreate_time(team.getCreate_time());
+            teamJoinedVO.setContestid(team.getContest_id());
 
 
             //依次将队友的头像url插入string[]中
@@ -162,8 +160,24 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public Object GetTeamInfo(Integer teamid) {
+    public Object GetTeamInfo(Integer teamid, User user) {
         Team team = teamMapper.selectByPrimaryKey(teamid);
+
+        //判断点击量，并更新
+        ClickLimit findByUidTid = new ClickLimit();
+        findByUidTid.setUid(user.getId());
+        findByUidTid.setTeamid(teamid);
+        ClickLimit clickLimit = clickLimitMapper.selectOne(findByUidTid);
+        clickLimitMapper.deleteOutTime();
+        if(clickLimit == null){
+            team.setClick(team.getClick()+1);
+            teamMapper.updateByPrimaryKeySelective(team);
+
+            findByUidTid.setTime(new Date());
+            clickLimitMapper.insert(findByUidTid);
+        }
+
+
         TeamInfoVO teamInfoVO = new TeamInfoVO();
         List<TeamPartnerVO> teamPartnerVOS= new ArrayList<TeamPartnerVO>();
         BeanUtils.copyProperties(team,teamInfoVO);
@@ -173,17 +187,66 @@ public class TeamServiceImpl implements TeamService {
 
         List<TeamPartner> teamPartners = teamPartnerMapper.select(findAllPartner);
         for(TeamPartner teamPartner:teamPartners){
-            User user = userMapper.selectByPrimaryKey(teamPartner.getUid());
+            User user1 = userMapper.selectByPrimaryKey(teamPartner.getUid());
             TeamPartnerVO teamPartnerVO = new TeamPartnerVO();
             teamPartnerVO.setPosition(0);
-            if(user.getId() == team.getOwnerid())
+            if(user1.getId() == team.getOwnerid())
                 teamPartnerVO.setPosition(1);
-            teamPartnerVO.setDescription(user.getDescription());
-            teamPartnerVO.setUname(user.getUsername());
-            teamPartnerVO.setUid(user.getId());
+            teamPartnerVO.setDescription(user1.getDescription());
+            teamPartnerVO.setUname(user1.getUsername());
+            teamPartnerVO.setUid(user1.getId());
             teamPartnerVOS.add(teamPartnerVO);
         }
         teamInfoVO.setTeamPartners(teamPartnerVOS);
         return teamInfoVO;
+    }
+
+    @Override
+    public Object GetListByContestId(Integer contestId) {
+        Team findByContestId = new Team();
+        findByContestId.setContest_id(contestId);
+        List<Team> teams = teamMapper.select(findByContestId);
+        List<TeamJoinedVO> teamJoinedVOList = new ArrayList<>();
+        for(Team team:teams){
+            TeamJoinedVO teamJoinedVO = new TeamJoinedVO();
+            teamJoinedVO.setTid(team.getTid());
+            teamJoinedVO.setCreate_time(team.getCreate_time());
+            teamJoinedVO.setTName(team.getName());
+            teamJoinedVO.setLeaderAvatarUrl(userMapper.selectByPrimaryKey(team.getOwnerid()).getAvatar_url());
+            teamJoinedVO.setClick(team.getClick());
+
+            //通过teampartner表将组员的头像url导入
+            TeamPartner findByTid = new TeamPartner();
+            findByTid.setTid(team.getTid());
+            List<TeamPartner> teamPartners = teamPartnerMapper.select(findByTid);
+            String[] partnersUrl = new String[teamPartners.size()-1];
+            int i = 0;
+            for (TeamPartner teamPartner:teamPartners){
+                if (teamPartner.getUid() == team.getOwnerid())
+                    continue;
+                partnersUrl[i++] = userMapper.selectByPrimaryKey(teamPartner.getUid()).getAvatar_url();
+            }
+            teamJoinedVO.setTeamPartnerUrls(partnersUrl);
+            teamJoinedVOList.add(teamJoinedVO);
+        }
+
+        return teamJoinedVOList;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Object BreakTeam(Integer teamid, User user) {
+        Team team = teamMapper.selectByPrimaryKey(teamid);
+        if(user.getId() != team.getOwnerid()){
+            throw new CommonException("你不是队长，不能解散队伍");
+        }
+        TeamPartner findByTid = new TeamPartner();
+        findByTid.setTid(teamid);
+        List<TeamPartner> partners = teamPartnerMapper.select(findByTid);
+        for(TeamPartner teamPartner:partners){
+            teamPartnerMapper.delete(teamPartner);
+        }
+        teamMapper.delete(team);
+        return null;
     }
 }
