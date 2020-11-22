@@ -99,7 +99,6 @@ public class CollectServiceImpl implements CollectService {
                 collectContestListVO.setRestTime("报名已截止");
             }
 
-//            collectContestListVO.
 
             collectContestListVOS.add(collectContestListVO);
         }
