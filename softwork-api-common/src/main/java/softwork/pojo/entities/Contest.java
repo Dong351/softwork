@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.util.Date;
 
+
 @Data
 public class Contest {
     private Integer id;
@@ -18,4 +19,6 @@ public class Contest {
     private Date contest_end;
     private String info;
     private String pic_url;
+
+
 }
