@@ -15,6 +15,7 @@ public class UserInfoVO {
     private Integer type;
     private String avatar_url;
     private String description;
+    private String awards;
 
     private Integer sex;
 

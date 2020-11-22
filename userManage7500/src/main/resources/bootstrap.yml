@@ -6,8 +6,8 @@ spring:
     basename: ValidationMessages
     encoding: utf-8
   #返回的json设置
-  jackson:
-    default-property-inclusion: non_null
+#  jackson:
+#    default-property-inclusion: non_null
   servlet:
     multipart:
       max-request-size: 10MB

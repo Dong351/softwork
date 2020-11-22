@@ -23,9 +23,9 @@ public class TeamController {
         return "Team hello";
     }
 
-    @PostMapping("/create")
-    public WebAsyncTask<Object> Create(@RequestBody @Validated TeamCreateDTO dto, @Token User user){
-        return new WebAsyncTask<>(()-> JsonResult.ok(teamService.Create(dto,user)));
+    @PostMapping("/create/{contestId}")
+    public WebAsyncTask<Object> Create(@PathVariable Integer contestId,@RequestBody @Validated TeamCreateDTO dto, @Token User user){
+        return new WebAsyncTask<>(()-> JsonResult.ok(teamService.Create(contestId,dto,user)));
     }
 
     @PostMapping("/join/{teamid}")
@@ -53,9 +53,23 @@ public class TeamController {
     }
 
     @GetMapping("/{teamid}")
-    public WebAsyncTask<Object> GetTeamInfo(@PathVariable Integer teamid){
+    public WebAsyncTask<Object> GetTeamInfo(@PathVariable Integer teamid,@Token User user){
         return new WebAsyncTask<>(()->{
-            return JsonResult.ok(teamService.GetTeamInfo(teamid));
+            return JsonResult.ok(teamService.GetTeamInfo(teamid,user));
+        });
+    }
+
+    @GetMapping("/get/{contestId}")
+    public WebAsyncTask<Object> GetListByContestId(@PathVariable Integer contestId){
+        return new WebAsyncTask<>(()->{
+            return JsonResult.ok(teamService.GetListByContestId(contestId));
+        });
+    }
+
+    @DeleteMapping("/delete/{teamid}")
+    public WebAsyncTask<Object> BreakTeam(@PathVariable Integer teamid,@Token User user){
+        return new WebAsyncTask<>(()->{
+            return JsonResult.ok(teamService.BreakTeam(teamid,user));
         });
     }
 

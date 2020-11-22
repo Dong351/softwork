@@ -22,4 +22,6 @@ public class UserUpdateDTO {
     private Integer sex;
 
     private String description;
+
+    private String awards;
 }

@@ -17,4 +17,8 @@ public class Team {
     private String name;
 
     private String description;
+
+    private Integer contest_id;
+
+    private Integer click;
 }

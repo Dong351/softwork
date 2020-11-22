@@ -32,4 +32,14 @@ public class UploadTest {
 //        String result = HttpUtils.postFile("https://clubajax.autohome.com.cn/Upload/UpImageOfBase64New?dir=image&cros=autohome.com.cn", fileStatus);
         System.out.println(result);
     }
+
+    @Test
+    public void splitTest(){
+        String t = ",3";
+        String[] split = t.split(",");
+//        System.out.println(split[1]);
+        if(split[0].equals("")){
+            System.out.println("yyyy");
+        }
+    }
 }

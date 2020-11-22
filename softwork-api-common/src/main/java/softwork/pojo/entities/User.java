@@ -19,4 +19,5 @@ public class User {
     private String accesstoken;
     private String avatar_url;
     private String description;
+    private String awards;
 }

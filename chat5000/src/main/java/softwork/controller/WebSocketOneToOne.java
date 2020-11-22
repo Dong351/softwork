@@ -5,9 +5,9 @@ import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 import softwork.mapper.UserMapper;
-import softwork.pojo.entities.Message;
+import softwork.pojo.entities.ChatMessage;
 import softwork.pojo.entities.User;
-import softwork.service.impl.MessageServiceImpl;
+import softwork.service.impl.ChatMessageServiceImpl;
 import softwork.service.impl.UserServiceImpl;
 import softwork.utils.MapUnite;
 
@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *                 注解的值将被用于监听用户连接的终端访问URL地址,客户端可以通过这个URL来连接到WebSocket服务器端
  */
 @RestController
-@ServerEndpoint(value = "/webSocketOneToOne/{param}")
+@ServerEndpoint(value = "/chat/single/{param}")
 public class WebSocketOneToOne {
     // 这里使用静态，让 service 属于类
     private static UserServiceImpl userService;
@@ -36,9 +36,9 @@ public class WebSocketOneToOne {
     public void setUserService(UserServiceImpl userService) {
         WebSocketOneToOne.userService = userService;
     }
-    private static MessageServiceImpl messageService;
+    private static ChatMessageServiceImpl messageService;
     @Autowired
-    public void setChatMsgService(MessageServiceImpl messageService) {
+    public void setChatMsgService(ChatMessageServiceImpl messageService) {
         WebSocketOneToOne.messageService = messageService;
     }
 
@@ -66,10 +66,14 @@ public class WebSocketOneToOne {
         this.session = session;
         String[] arr = param.split(",");
         this.sendId = arr[0];             //用户标识
-        this.roomId = arr[1];         //会话标识
+        // 会话标识
+        if(Integer.valueOf(arr[0]) < Integer.valueOf(arr[1])){
+            this.roomId = arr[0]+"-"+arr[1];
+        }
+        else this.roomId = arr[1]+"-"+arr[0];
+        System.out.println(this.roomId);
         connections.put(sendId,this);     //添加到map中
         addOnlineCount();               // 在线数加
-        System.out.println(param);
         System.out.println(this.session);
         System.out.println("有新连接加入！新用户："+sendId+",当前在线人数为" + getOnlineCount());
     }
@@ -98,7 +102,7 @@ public class WebSocketOneToOne {
         JSONObject json= JSON.parseObject(message);
         String msg = (String) json.get("message");  //需要发送的信息
         String receiveId = (String) json.get("receiveId");      //发送对象的用户标识(接收者)
-        String type = (String) json.get("type");      //发送对象的用户标识(接收者)
+        String type = "1";
         send(msg,sendId,receiveId,roomId,type);
     }
 
@@ -117,24 +121,26 @@ public class WebSocketOneToOne {
 
     //发送给指定角色
     public void send(String msg,String sendId,String receiveId,String roomId,String type){
-        Message message = new Message();
-        message.setContain(msg);
+        ChatMessage message = new ChatMessage();
+        message.setContent(msg);
         message.setCreate_time(new Date());
-        message.setReceive_uid(Integer.valueOf(receiveId));
-        message.setTid(Integer.valueOf(roomId));
-        message.setSend_uid(Integer.valueOf(sendId));
-        message.setType(Integer.valueOf(type));
+        System.out.println(new Date());
+        message.setReceive_id(Integer.valueOf(receiveId));
+        message.setRoom_id(roomId);
+        message.setSend_id(Integer.valueOf(sendId));
+        message.setType(1);
         System.out.println(message);
 
         try {
-            System.out.println(Integer.valueOf(sendId));
-            User u = userMapper.selectByPrimaryKey(Integer.valueOf(sendId));
+            Integer send_uid = Integer.valueOf(sendId);
+            System.out.println(send_uid);
+//            User u = userMapper.selectByPrimaryKey(send_uid);
+            User u = userService.SelectByKey(send_uid);
             System.out.println(u);
             //to指定用户
             WebSocketOneToOne con = connections.get(receiveId);
             if(con!=null){
                 if(roomId.equals(con.roomId)){
-                    //messageService.save(message); // 保存消息
                     Map map = MapUnite.getMap(message);
                     map.put("avatar",u.getAvatar_url());
                     con.session.getBasicRemote().sendText(JSON.toJSONString(map));
@@ -145,13 +151,14 @@ public class WebSocketOneToOne {
             WebSocketOneToOne confrom = connections.get(sendId);
             if(confrom!=null){
                 if(roomId.equals(confrom.roomId)){
-                    //messageService.save(message);
                     Map map = MapUnite.getMap(message);
                     map.put("avatar",u.getAvatar_url());
                     confrom.session.getBasicRemote().sendText(JSON.toJSONString(map));
                 }
 
             }
+            messageService.save(message); // 保存消息
+
         } catch (IOException e) {
             e.printStackTrace();
         }
