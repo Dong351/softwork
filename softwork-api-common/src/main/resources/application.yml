@@ -1,4 +1,13 @@
 spring:
+  main:
+    allow-bean-definition-overriding: true
   messages:
     basename: ValidationMessages
     encoding: utf-8
+  elasticsearch:
+    rest:
+      uris: 123.57.110.115:9200
+#  data:
+#    elasticsearch:
+#      cluster-nodes: 123.57.110.115:9300
+#      cluster-name: docker-cluster
