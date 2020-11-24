@@ -18,7 +18,7 @@ public class UploadTest {
         File file = new File("X:\\uploads\\4.jpg");
         UploadFileStatus fileStatus = new UploadFileStatus();
         // 上传到服务器后的文件名
-        fileStatus.setFileName("3");
+        fileStatus.setFileName("44");
         // 上传到服务器的哪个位置
         fileStatus.setFilePath("/root/usr/local/webfile/softwork/");
         // 文件的大小

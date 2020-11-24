@@ -26,19 +26,27 @@ public class CollectServiceImpl implements CollectService {
     @Override
     public Object CollectContest(Integer contestId, User user) {
         Collect findExist = new Collect();
+        Contest contest = contestMapper.selectByPrimaryKey(contestId);
+
         findExist.setData_id(contestId);
         findExist.setUid(user.getId());
         findExist.setType(1);
         Collect exist = collectMapper.selectOne(findExist);
+        //判断是否收藏，没收藏插入collect表，contest表收藏+1，反之
         if (exist == null) {
             Collect collect = new Collect();
             collect.setUid(user.getId());
             collect.setType(1);
             collect.setData_id(contestId);
             collectMapper.insert(collect);
+
+            contest.setCollected(contest.getCollected()+1);
+            contestMapper.updateByPrimaryKeySelective(contest);
         }
         else {
             collectMapper.delete(exist);
+            contest.setCollected(contest.getCollected()-1);
+            contestMapper.updateByPrimaryKeySelective(contest);
         }
         return null;
     }
@@ -75,6 +83,7 @@ public class CollectServiceImpl implements CollectService {
             System.out.println(contest);
             CollectContestListVO collectContestListVO = new CollectContestListVO();
             BeanUtils.copyProperties(contest,collectContestListVO);
+            collectContestListVO.setContestId(collect.getData_id());
             collectContestListVO.setContestName(contest.getName());
 
             //计算时间差
@@ -99,9 +108,34 @@ public class CollectServiceImpl implements CollectService {
                 collectContestListVO.setRestTime("报名已截止");
             }
 
-            //hello
+            collectContestListVO.setCollections(collectMapper.getContestCollections(collect.getData_id()));
             collectContestListVOS.add(collectContestListVO);
         }
-        return null;
+        return collectContestListVOS;
+    }
+
+    @Override
+    public Object ContestCollectStatus(Integer contestId, User user) {
+        Collect findExist = new Collect();
+        findExist.setType(1);
+        findExist.setData_id(contestId);
+        findExist.setUid(user.getId());
+        Collect collect = collectMapper.selectOne(findExist);
+        if(collect == null){
+            return 0;
+        }
+        else return 1;
+    }
+
+    @Override
+    public Object CertificateCollectStatus(Integer certificateId, User user) {
+        Collect findExist = new Collect();
+        findExist.setType(2);
+        findExist.setData_id(certificateId);
+        Collect collect = collectMapper.selectOne(findExist);
+        if(collect == null){
+            return 0;
+        }
+        else return 1;
     }
 }

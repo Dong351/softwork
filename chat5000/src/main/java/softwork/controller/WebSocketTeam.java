@@ -91,7 +91,7 @@ public class WebSocketTeam {
         chatMessage.setCreate_time(new Date());
         chatMessage.setRoom_id(roomid);
         chatMessage.setContent(msg);
-        chatMessage.setType(2);
+        chatMessage.setType(1);
         chatMessage.setSend_id(Integer.valueOf(sendid));
 
         Map map = MapUnite.getMap(chatMessage);

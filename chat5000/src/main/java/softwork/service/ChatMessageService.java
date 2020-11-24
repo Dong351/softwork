@@ -10,4 +10,6 @@ public interface ChatMessageService {
      * @return
      */
     Object Single(Integer uid, User user);
+
+
 }

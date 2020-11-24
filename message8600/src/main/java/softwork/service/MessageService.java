@@ -12,9 +12,18 @@ public interface MessageService {
 
     /**
      * 根据mid获取指定消息
+     *
+     * @param read
      * @param mid
      * @param user
      * @return
      */
-    Object GetMessage(Integer mid, User user);
+    Object GetMessage(Integer read, Integer mid, User user);
+
+    /**
+     * 获取消息列表
+     * @param user
+     * @return
+     */
+    Object GetChatList(User user);
 }

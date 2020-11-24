@@ -10,7 +10,11 @@ public class MessageListVO {
 
     private Integer send_uid;
 
+    private String tname;
+
     private Integer type;
+
+    private Integer readed;
 
     private String send_userName;
 

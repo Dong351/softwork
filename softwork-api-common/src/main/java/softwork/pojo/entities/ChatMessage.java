@@ -1,6 +1,5 @@
 package softwork.pojo.entities;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import javax.persistence.Column;
@@ -21,11 +20,12 @@ public class ChatMessage {
 
     private Integer receive_id;
 
-    private Integer type;   //0已处理 1已读 2队伍申请 3队伍申请回复
+    private Integer type;
+
+    private Integer readed;
 
     private String content;
 
-    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
     private Date create_time;
 
 }
