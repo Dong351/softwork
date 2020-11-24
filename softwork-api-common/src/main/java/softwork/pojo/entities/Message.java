@@ -16,9 +16,12 @@ public class Message {
 
     private Integer receive_uid;
 
-    private Integer type;   //0已处理 1已读 2队伍申请 3队伍申请回复
+    private Integer type;   //0已处理 1队伍申请 2队伍申请回复
+
+    private Integer readed;   //0未读 1已读
 
     private String contain;
 
     private Date create_time;
+
 }

@@ -25,4 +25,20 @@ public interface CollectService {
      * @return
      */
     Object GetCollectContest(User user);
+
+    /**
+     * 用于给出指定竞赛的收藏状态
+     * @param contestId
+     * @param user
+     * @return
+     */
+    Object ContestCollectStatus(Integer contestId, User user);
+
+    /**
+     * 查看指定证书的收藏状态
+     * @param certificateId
+     * @param user
+     * @return
+     */
+    Object CertificateCollectStatus(Integer certificateId, User user);
 }

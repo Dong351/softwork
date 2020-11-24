@@ -102,7 +102,7 @@ public class WebSocketOneToOne {
         JSONObject json= JSON.parseObject(message);
         String msg = (String) json.get("message");  //需要发送的信息
         String receiveId = (String) json.get("receiveId");      //发送对象的用户标识(接收者)
-        String type = "1";
+        String type = "0";
         send(msg,sendId,receiveId,roomId,type);
     }
 
@@ -128,7 +128,7 @@ public class WebSocketOneToOne {
         message.setReceive_id(Integer.valueOf(receiveId));
         message.setRoom_id(roomId);
         message.setSend_id(Integer.valueOf(sendId));
-        message.setType(1);
+        message.setType(0);
         System.out.println(message);
 
         try {

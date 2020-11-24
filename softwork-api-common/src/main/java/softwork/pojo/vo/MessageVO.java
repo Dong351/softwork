@@ -13,6 +13,7 @@ public class MessageVO {
     private Integer tid;
     private String team_name;
     private Integer type;
+//    private Integer readed;
     private String contain;
     private Date create_time;
 }

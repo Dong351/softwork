@@ -63,8 +63,9 @@ public class TeamServiceImpl implements TeamService {
         Message findExist = new Message();
         findExist.setTid(teamid);
         findExist.setSend_uid(user.getId());
-        if(messageMapper.select(findExist) != null){
-            throw new CommonException("您已申请！");
+        System.out.println(findExist);
+        if((messageMapper.selectOne(findExist)) != null){
+            throw new CommonException("您已申请过，不可重复申请！");
         }
 
         Message message = new Message();
@@ -74,7 +75,8 @@ public class TeamServiceImpl implements TeamService {
         Team team = teamMapper.selectByPrimaryKey(teamid);
         message.setReceive_uid(team.getOwnerid());
         message.setContain(requestContain);
-        message.setType(2);
+        message.setType(1);
+        message.setReaded(0);
         messageMapper.insert(message);
         return null;
     }
@@ -86,6 +88,11 @@ public class TeamServiceImpl implements TeamService {
 //            throw new CommonException("不是队伍申请信息");
 //        }
         Message message = messageMapper.selectByPrimaryKey(messageid);
+
+        //判断是否已经处理
+        if(message.getType() == 0){
+            throw new CommonException("您已处理过该信息!");
+        }
         Integer tid = message.getTid();
         Team team = teamMapper.selectByPrimaryKey(tid);
 
@@ -97,9 +104,10 @@ public class TeamServiceImpl implements TeamService {
 
         TeamPartner teamPartner = new TeamPartner();
         Message returnMessage = new Message();
-        returnMessage.setType(3);
+        returnMessage.setType(2);
         returnMessage.setSend_uid(user.getId());
         returnMessage.setTid(tid);
+        returnMessage.setReaded(0);
         returnMessage.setReceive_uid(message.getSend_uid());
         returnMessage.setCreate_time(new Date());
         //处理结果1为同意 0为拒绝,并发送回信

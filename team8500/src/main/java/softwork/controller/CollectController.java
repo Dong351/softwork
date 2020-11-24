@@ -42,4 +42,18 @@ public class CollectController {
             return JsonResult.ok(collectService.GetCollectContest(user));
         });
     }
+
+    @GetMapping("/contest/collectStatus/{contestId}")
+    public WebAsyncTask<Object> ContestCollectStatus(@PathVariable Integer contestId,@Token User user){
+        return new WebAsyncTask<>(()->{
+            return JsonResult.ok(collectService.ContestCollectStatus(contestId,user));
+        });
+    }
+
+    @GetMapping("/certificate/collectStatus/{certificateId}")
+    public WebAsyncTask<Object> CertificateCollectStatus(@PathVariable Integer certificateId,@Token User user){
+        return new WebAsyncTask<>(()->{
+            return JsonResult.ok(collectService.CertificateCollectStatus(certificateId,user));
+        });
+    }
 }

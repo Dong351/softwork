@@ -11,7 +11,7 @@ public class UserInfoVO {
     private String name;
     private String phone;
     private String email;
-    private String accesstoken;
+//    private String accesstoken;
     private Integer type;
     private String avatar_url;
     private String description;

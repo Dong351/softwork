@@ -22,13 +22,18 @@ public class MessageController {
         return "message hello";
     }
 
-    @GetMapping("/list")
+    @GetMapping("/list/team")
     public WebAsyncTask<Object> GetMessageList(@Token User user){
         return new WebAsyncTask<>(()-> JsonResult.ok(messageService.GetList(user)));
     }
 
     @GetMapping("/get/{mid}")
-    public WebAsyncTask<Object> GetMessage(@PathVariable Integer mid, @Token User user){
-        return new WebAsyncTask<>(()-> JsonResult.ok(messageService.GetMessage(mid,user)));
+    public WebAsyncTask<Object> GetMessage(Integer read,@PathVariable Integer mid, @Token User user){
+        return new WebAsyncTask<>(()-> JsonResult.ok(messageService.GetMessage(read,mid,user)));
+    }
+
+    @GetMapping("/list")
+    public WebAsyncTask<Object> GetChatList(@Token User user){
+        return new WebAsyncTask<>(()-> JsonResult.ok(messageService.GetChatList(user)));
     }
 }

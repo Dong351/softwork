@@ -231,9 +231,17 @@ public class UserServiceImpl implements UserService {
         UserInfoVO info = new UserInfoVO();
         if(uid == 0)
             BeanUtils.copyProperties(user,info);
-        else
+        else{
             BeanUtils.copyProperties(findUser,info);
-        info.setAccesstoken(null);
+
+            //将电话、邮箱和姓名隐藏
+            String str = "******";
+            StringBuilder sb = new StringBuilder(info.getPhone());
+            sb.replace(3,9,str);
+
+            info.setPhone(sb.toString());
+        }
+//        info.setAccesstoken(null);
         return info;
     }
 
@@ -250,11 +258,11 @@ public class UserServiceImpl implements UserService {
         // 文件的类型
         fileStatus.setFileType("png");
         fileStatus.setInputStream(inputStream);
-        String result = HttpUtils.postFile("http://49.234.239.138:3000/upload", fileStatus);
+        String result = HttpUtils.postFile("http://49.234.239.138:3000/upload/", fileStatus);
         System.out.println(result);
 
         //将url更新到user表
-        user.setAvatar_url("http://49.234.239.138:3000/avatar/"+user.getId()+".png");
+        user.setAvatar_url("https://soft.leavessoft.cn/avatar/"+user.getId()+".png");
         userMapper.updateByPrimaryKey(user);
     }
 }
