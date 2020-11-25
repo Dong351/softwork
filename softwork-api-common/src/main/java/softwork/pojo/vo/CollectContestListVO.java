@@ -9,6 +9,7 @@ public class CollectContestListVO {
     private String restTime;
     private String contestName;
     private String pic_url;
+    private Integer views;
     private Integer collections;
     private String level;
 }

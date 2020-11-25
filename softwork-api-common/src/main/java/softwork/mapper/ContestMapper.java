@@ -9,7 +9,7 @@ import java.util.List;
 
 @Repository
 public interface ContestMapper extends BaseMapper<Contest> {
-    @Select("SELECT name,enroll_start,enroll_end,pic_url,level FROM contest where id=#{id} ")
+    @Select("SELECT name,enroll_start,enroll_end,pic_url,level,watched FROM contest where id=#{id} ")
     Contest GetListVOById(Integer id);
 
     List<Contest> getBaseInfoByCondition(Contest contest);
