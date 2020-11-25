@@ -20,4 +20,6 @@ public interface ContestMapper extends BaseMapper<Contest> {
     @Select("select DISTINCT level from contest")
     List<String> getContestLevel();
 
+    @Update("update contest set watched = watched + 1 where id = #{id}")
+    void addWatched(String id);
 }

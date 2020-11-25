@@ -60,6 +60,7 @@ public class ContestServiceImpl implements ContestService {
 
     @Override
     public Contest getInfoByID(String id) {
+        contestMapper.addWatched(id);
         return contestMapper.selectByPrimaryKey(id);
     }
 

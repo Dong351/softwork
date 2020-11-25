@@ -53,4 +53,8 @@ public class Contest {
     @Field(index = false, type = FieldType.Keyword)
     private Integer watched;
 
+    private String collected;
+
+    private String watched;
+
 }
