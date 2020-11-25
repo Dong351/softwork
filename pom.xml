@@ -16,6 +16,7 @@
         <module>upload3000</module>
         <module>chat5000</module>
         <module>contest</module>
+        <module>route8700</module>
     </modules>
     <packaging>pom</packaging>
 

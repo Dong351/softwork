@@ -85,6 +85,7 @@ public class CollectServiceImpl implements CollectService {
             BeanUtils.copyProperties(contest,collectContestListVO);
             collectContestListVO.setContestId(collect.getData_id());
             collectContestListVO.setContestName(contest.getName());
+            collectContestListVO.setViews(contest.getWatched());
 
             //计算时间差
             long nowTime = new Date().getTime();
