@@ -17,7 +17,7 @@ public class Contest {
     @Id
     private Integer id;
 
-    @Field(type = FieldType.Text)
+    @Field(type = FieldType.Text,analyzer = "ik_max_word")
     private String name;
 
     @Field(type = FieldType.Keyword)
@@ -29,7 +29,7 @@ public class Contest {
     @Field(type = FieldType.Keyword)
     private String level;
 
-    @Field(store = true,type = FieldType.Text)
+    @Field(store = true,type = FieldType.Text,analyzer = "ik_max_word")
     private String info;
 
     @Field(index = false,type = FieldType.Date)
@@ -52,9 +52,5 @@ public class Contest {
 
     @Field(index = false, type = FieldType.Keyword)
     private Integer watched;
-
-    private String collected;
-
-    private String watched;
 
 }
