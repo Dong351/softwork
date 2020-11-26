@@ -1,6 +1,7 @@
 package softwork.mapper;
 
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 import softwork.pojo.entities.Contest;
 import tk.mybatis.mapper.common.BaseMapper;
