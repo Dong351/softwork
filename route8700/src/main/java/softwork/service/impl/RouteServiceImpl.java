@@ -95,11 +95,31 @@ public class RouteServiceImpl implements RouteService {
                 routeAlterVO.setName(contest.getName());
                 long endTime = contest.getEnroll_end().getTime();
                 long nowTime = new Date().getTime();
-
+                if(nowTime > endTime){
+                    continue;
+                }
+                long nd = 1000 * 24 * 60 * 60;
+                long diff = endTime - nowTime;
+                long days = diff / nd;
+                routeAlterVO.setCountdown(String.valueOf(days));
             }
 
             routeAlterVOS.add(routeAlterVO);
         }
+        return routeAlterVOS;
+    }
+
+    @Override
+    public Object RemoveRoute(Integer type, Integer data_id, User user) {
+        Route find = new Route();
+        find.setUid(user.getId());
+        find.setType(type);
+        find.setData_id(data_id);
+        Route route = routeMapper.selectOne(find);
+        if (route == null){
+            throw new CommonException("该比赛/证书不在路线中");
+        }
+        routeMapper.delete(route);
         return null;
     }
 

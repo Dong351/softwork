@@ -1,5 +1,6 @@
 package softwork.service.impl;
 
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,11 +12,15 @@ import softwork.service.ChatMessageService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ChatMessageServiceImpl implements ChatMessageService {
     @Autowired
     ChatMessageMapper chatMessageMapper;
+    @Autowired
+    RabbitTemplate rabbitTemplate;
+
     public void save(ChatMessage message) {
         chatMessageMapper.insert(message);
     }
@@ -45,5 +50,8 @@ public class ChatMessageServiceImpl implements ChatMessageService {
         return messageVOS;
     }
 
+    public void SendQueue(Map<String,String> map){
+        rabbitTemplate.convertAndSend("ChatMessageQueue", "ChatMessageRoute", map);
+    }
 
 }

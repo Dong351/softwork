@@ -41,4 +41,9 @@ public class RouteController {
     public WebAsyncTask<Object> RouteAlert(@Token User user){
         return new WebAsyncTask<>(()-> JsonResult.ok(routeService.RouteAlert(user)));
     }
+
+    @DeleteMapping("/remove/{type}/{data_id}")
+    public WebAsyncTask<Object> RemoveRoute(@PathVariable Integer type,@PathVariable Integer data_id,@Token User user){
+        return new WebAsyncTask<>(()-> JsonResult.ok(routeService.RemoveRoute(type,data_id,user)));
+    }
 }
