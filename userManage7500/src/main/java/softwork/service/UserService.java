@@ -71,4 +71,27 @@ public interface UserService {
      * @param user
      */
     void UploadAvatar(MultipartFile avatar, User user) throws IOException;
+
+    /**
+     * 上传证书
+     * @param certificate
+     * @param name
+     * @param user
+     */
+    void UploadCertifcate(MultipartFile certificate, String name, User user) throws IOException;
+
+    /**
+     * 查看指定用户所有证书
+     * @param uid
+     *
+     */
+    Object getCertificates(Integer uid);
+
+    /**
+     * 删除上传的证书
+     * @param cid
+     * @param user
+     * @return
+     */
+    Object DeleteCertificates(Integer cid, User user);
 }

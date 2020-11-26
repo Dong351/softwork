@@ -2,23 +2,23 @@ package softwork.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 import softwork.mapper.UserMapper;
-import softwork.pojo.entities.ChatMessage;
 import softwork.pojo.entities.User;
 import softwork.service.impl.ChatMessageServiceImpl;
 import softwork.service.impl.UserServiceImpl;
-import softwork.utils.MapUnite;
 
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -47,6 +47,15 @@ public class WebSocketOneToOne {
         WebSocketOneToOne.messageService = messageService;
     }
 
+    private static RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    public static void setRabbitTemplate(RabbitTemplate rabbitTemplate) {
+        WebSocketOneToOne.rabbitTemplate = rabbitTemplate;
+    }
+
+
+
     // 静态变量，用来记录当前在线连接数。应该把它设计成线程安全的。
     private static int onlineCount;
     //实现服务端与单一客户端通信的话，可以使用Map来存放，其中Key为用户标识
@@ -61,7 +70,7 @@ public class WebSocketOneToOne {
     private String roomId;
     private int uid; // 用户的自增键
 
-    // private static final Map<
+     private static final Map<Integer, Set<User>> TUsers= new ConcurrentHashMap<>();
 
     @Autowired
     UserMapper userMapper;
@@ -87,18 +96,8 @@ public class WebSocketOneToOne {
 
         }
         clients.put(this.uid, this);// 将新的客户端加入map
-//        String[] arr = param.split(",");
-//        this.sendId = arr[0];             //用户标识
-        // 会话标识
-//        if(Integer.valueOf(arr[0]) < Integer.valueOf(arr[1])){
-//            this.roomId = arr[0]+"-"+arr[1];
-//        }
-//        else this.roomId = arr[1]+"-"+arr[0];
-//        System.out.println(this.roomId);
-//        connections.put(sendId,this);     //添加到map中
-//        addOnlineCount();               // 在线数加
-//        System.out.println(this.session);
-//        System.out.println("有新连接加入！新用户："+sendId+",当前在线人数为" + getOnlineCount());
+
+
     }
 
     /**
@@ -130,6 +129,7 @@ public class WebSocketOneToOne {
         // 判断一下该队伍是否包含该用户，是否是队长
         // 具体的实现（利用static 缓冲）
 
+
         // 判断本次发送的用户是否为该小队，如果不是则判断联系的用户是否为队长，如果不是，返回deny
         // 具体的实现（可利用static 缓冲）
         // 涉及数据库暂无实现
@@ -159,70 +159,38 @@ public class WebSocketOneToOne {
 
     //发送给指定角色
     public void send(String msg, Integer tid, Integer uid) {
+        RestTemplate restTemplate = new RestTemplate();
+        Map<String, String> map = new HashMap<>();
+        map.put("message", msg);
+        map.put("uid", String.valueOf(uid));
+        map.put("tid", String.valueOf(tid));
+        messageService.SendQueue(map);
+
         // msg 需要自定义，需要带有tid,uid,datetime等等参数，一般为json
         // 如果uid为空则是整个队伍，否则是私聊
-        if (uid == null) {
+        if (uid == 0) {
             // 这里需开设一个全局类批量加入消息缓冲队列录入数据库(队伍消息），不能直接录入防止卡顿
+
+
+
             // 不管有没有在线客户都需要存到数据库里
             for (Integer clientId : teamCache.get(tid)) {
-                WebSocketOneToOne client = clients.getOrDefault(clientId,null);
+                WebSocketOneToOne client = clients.getOrDefault(clientId, null);
 
                 if (client != null) {
 
                     client.session.getAsyncRemote().sendText(msg);
                 }
             }
-        }else{
+        } else {
             // 发送单独的用户的
-            WebSocketOneToOne client = clients.getOrDefault(uid,null);
+            WebSocketOneToOne client = clients.getOrDefault(uid, null);
             // 这里需开设一个全局类批量加入消息缓冲队列录入数据库(私人消息），不能直接录入防止卡顿
             // 不管有没有都要加入数据库的历史记录
-            if (client!=null){
+
+            if (client != null) {
                 client.session.getAsyncRemote().sendText(msg);
             }
         }
-
-//        ChatMessage message = new ChatMessage();
-//        message.setContent(msg);
-//        message.setCreate_time(new Date());
-//        System.out.println(new Date());
-//        message.setReceive_id(Integer.valueOf(receiveId));
-//        message.setRoom_id(roomId);
-//        message.setSend_id(Integer.valueOf(sendId));
-//        message.setType(0);
-//        System.out.println(message);
-//
-//        try {
-//            Integer send_uid = Integer.valueOf(sendId);
-//            System.out.println(send_uid);
-////            User u = userMapper.selectByPrimaryKey(send_uid);
-//            User u = userService.SelectByKey(send_uid);
-//            System.out.println(u);
-//            //to指定用户
-//            WebSocketOneToOne con = connections.get(receiveId);
-//            if (con != null) {
-//                if (roomId.equals(con.roomId)) {
-//                    Map map = MapUnite.getMap(message);
-//                    map.put("avatar", u.getAvatar_url());
-//                    con.session.getBasicRemote().sendText(JSON.toJSONString(map));
-//                }
-//
-//            }
-//            //from具体用户
-//            WebSocketOneToOne confrom = connections.get(sendId);
-//            if (confrom != null) {
-//                if (roomId.equals(confrom.roomId)) {
-//                    Map map = MapUnite.getMap(message);
-//                    map.put("avatar", u.getAvatar_url());
-//                    confrom.session.getBasicRemote().sendText(JSON.toJSONString(map));
-//                }
-//
-//            }
-//            messageService.save(message); // 保存消息
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
     }
-
 }

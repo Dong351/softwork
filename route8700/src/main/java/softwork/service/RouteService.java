@@ -34,4 +34,13 @@ public interface RouteService {
      * @return
      */
     Object RouteAlert(User user);
+
+    /**
+     * 将竞赛/证书从路线中移除
+     * @param type
+     * @param data_id
+     * @param user
+     * @return
+     */
+    Object RemoveRoute(Integer type, Integer data_id, User user);
 }

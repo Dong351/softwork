@@ -8,15 +8,18 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import softwork.exception.CommonException;
 import softwork.mapper.ResetMailCodeMapper;
+import softwork.mapper.ShowCertificateMapper;
 import softwork.mapper.UserMapper;
 import softwork.pojo.dto.*;
 import softwork.pojo.entities.ResetMailCode;
+import softwork.pojo.entities.ShowCertificate;
 import softwork.pojo.entities.User;
 import softwork.pojo.vo.UserInfoVO;
 import softwork.service.UserService;
 import softwork.utils.HttpUtils;
 import softwork.utils.UploadFileStatus;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
@@ -31,6 +34,8 @@ public class UserServiceImpl implements UserService {
     UserMapper userMapper;
     @Autowired
     ResetMailCodeMapper resetMailCodeMapper;
+    @Autowired
+    ShowCertificateMapper showCertificateMapper;
 
     public User queryUserByToken(String token) {
         User exampleUser = new User();
@@ -264,5 +269,69 @@ public class UserServiceImpl implements UserService {
         //将url更新到user表
         user.setAvatar_url("https://soft.leavessoft.cn/avatar/"+user.getId()+".png");
         userMapper.updateByPrimaryKey(user);
+    }
+
+    @Override
+    public void UploadCertifcate(MultipartFile certificate, String name, User user) throws IOException{
+        FileInputStream inputStream = (FileInputStream) certificate.getInputStream();
+        UploadFileStatus fileStatus = new UploadFileStatus();
+        // 上传到服务器后的文件名
+        Random random = new Random();
+        int i = random.nextInt(10000);
+        String s = user.getId().toString() + i;
+        fileStatus.setFileName(s);
+        System.out.println(s);
+        // 上传到服务器的哪个位置
+        fileStatus.setFilePath("/root/usr/local/webfile/softwork/");
+        // 文件的大小
+        fileStatus.setFileSize(inputStream.available());
+        // 文件的类型
+        fileStatus.setFileType("png");
+        fileStatus.setInputStream(inputStream);
+        String result = HttpUtils.postFile("http://49.234.239.138:3000/upload/", fileStatus);
+        System.out.println(result);
+
+        ShowCertificate showCertificate = new ShowCertificate();
+        showCertificate.setUid(user.getId());
+        showCertificate.setName(name);
+        showCertificate.setUrl("https://soft.leavessoft.cn/avatar/"+s+".png");
+        showCertificateMapper.insert(showCertificate);
+    }
+
+    @Override
+    public Object getCertificates(Integer uid) {
+        ShowCertificate findByUid = new ShowCertificate();
+        findByUid.setUid(uid);
+        List<ShowCertificate> showCertificates = showCertificateMapper.select(findByUid);
+        return showCertificates;
+    }
+
+    @Override
+    public Object DeleteCertificates(Integer id, User user) {
+        ShowCertificate find = new ShowCertificate();
+        ShowCertificate showCertificate = showCertificateMapper.selectByPrimaryKey(id);
+        if(showCertificate.getUid() != user.getId()){
+            throw new CommonException("权限不足");
+        }
+
+        String[] split = showCertificate.getUrl().split("/");
+
+
+        String resultInfo = null;
+        String filePath = "/root/usr/local/webfile/softwork/"+split[split.length-1];
+        //System.out.println(img_path);//输出测试一下文件路径是否正确
+        File file = new File(filePath);
+        if (file.exists()) {//文件是否存在
+            if (file.delete()) {//存在就删了
+                showCertificateMapper.delete(showCertificate);
+                resultInfo =  "删除成功";
+            } else {
+                resultInfo =  "删除失败";
+            }
+        } else {
+            resultInfo = "文件不存在！";
+        }
+        System.out.println(resultInfo);
+        return null;
     }
 }

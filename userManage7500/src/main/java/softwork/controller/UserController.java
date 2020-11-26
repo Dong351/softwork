@@ -75,5 +75,27 @@ public class UserController {
         });
     }
 
+    @PostMapping("/uploadCertificate")
+    public WebAsyncTask<Object> UploadCertifcate(String name,@RequestParam("certificate") MultipartFile certificate,
+                                                 @Token User user){
+        return new WebAsyncTask<>(()->{
+            userService.UploadCertifcate(certificate,name,user);
+            return JsonResult.ok();
+        });
+    }
+
+    @GetMapping("/getCertificates/{uid}")
+    public WebAsyncTask<Object> getCertificates(@PathVariable Integer uid){
+        return new WebAsyncTask<>(()->{
+            return JsonResult.ok(userService.getCertificates(uid));
+        });
+    }
+
+    @DeleteMapping("/deleteCertificate/{id}")
+    public WebAsyncTask<Object> DeleteCertificates(@PathVariable Integer id,@Token User user){
+        return new WebAsyncTask<>(()->{
+            return JsonResult.ok(userService.DeleteCertificates(id,user));
+        });
+    }
 
 }
