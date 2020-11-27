@@ -6,8 +6,8 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import softwork.exception.CommonException;
 import softwork.mapper.UserMapper;
-import softwork.pojo.entities.User;
 import softwork.service.impl.ChatMessageServiceImpl;
 import softwork.service.impl.UserServiceImpl;
 
@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -70,7 +69,7 @@ public class WebSocketOneToOne {
     private String roomId;
     private int uid; // 用户的自增键
 
-     private static final Map<Integer, Set<User>> TUsers= new ConcurrentHashMap<>();
+//     private static final Map<Integer, Set<User>> TUsers= new ConcurrentHashMap<>();
 
     @Autowired
     UserMapper userMapper;
@@ -124,24 +123,52 @@ public class WebSocketOneToOne {
         JSONObject json = JSON.parseObject(message); // 设定是json格式的
         // 包含属性有tid,userid => 对应当前用户是联系哪个小队的tid，以及该小队的哪个用户
         Integer tid = (Integer) json.get("tid"); // tid自增键，队伍的id
-        Integer uid = (Integer) json.get("uid"); // uid，目标用户，如果uid为空，则为发送整个队伍，是否会null异常，或者parse异常?
+        Integer receive_id = (Integer) json.get("uid"); // uid，目标用户，如果uid为空，则为发送整个队伍，是否会null异常，或者parse异常?
         String msg = (String) json.get("message"); // 消息
+
+        List<Integer> uids;
+        if(teamCache.containsKey(tid)){
+            uids = teamCache.get(tid);
+
+        }
+        else {
+            uids = messageService.GetTeamUidList(tid);
+            teamCache.put(tid,uids);
+
+        }
+        System.out.println(uids);
+
         // 判断一下该队伍是否包含该用户，是否是队长
         // 具体的实现（利用static 缓冲）
+        int in = 0;
+        for(int i = 0;i < uids.size();i++){
+//            System.out.println(uids.get(i));
+            if(uids.get(i) == receive_id){
+                if(i == 0){
+                    System.out.println("发送的目标用户是该队队长");
+                }
+                System.out.println("发送的目标用户在该队");
+                break;
+            }
 
+            // 判断本次发送的用户是否为该小队，如果不是则判断联系的用户是否为队长，如果不是，返回deny
+            // 具体的实现（可利用static 缓冲）
+            // 涉及数据库暂无实现
+            if(uids.get(i) == uid){
+                System.out.println("发送用户在该队");
+                in = 1;
+            }
+        }
+        if(in != 1){
+            System.out.println("deny");
+            throw new CommonException("无效联系");
+        }
 
-        // 判断本次发送的用户是否为该小队，如果不是则判断联系的用户是否为队长，如果不是，返回deny
-        // 具体的实现（可利用static 缓冲）
-        // 涉及数据库暂无实现
 
         // 这里忽略tid，tid查找涉及数据库，需要维护一个线程安全map<tid,Array<User>>类
 
-        send(msg,tid,uid);
+        send(msg,tid,receive_id);
 
-//        String msg = (String) json.get("message");  //需要发送的信息
-//        String receiveId = (String) json.get("receiveId");      //发送对象的用户标识(接收者)
-//        String type = "0";
-//        send(msg, sendId, receiveId, roomId, type);
     }
 
     /**
@@ -158,14 +185,17 @@ public class WebSocketOneToOne {
 
 
     //发送给指定角色
-    public void send(String msg, Integer tid, Integer uid) {
+    public void send(String msg, Integer tid, Integer receive_id) {
         RestTemplate restTemplate = new RestTemplate();
-        Map<String, String> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
         map.put("message", msg);
-        map.put("uid", String.valueOf(uid));
-        map.put("tid", String.valueOf(tid));
+        map.put("receive_id", receive_id);
+        map.put("send_id", uid);
+        map.put("tid",tid);
         messageService.SendQueue(map);
 
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("chat",map);
         // msg 需要自定义，需要带有tid,uid,datetime等等参数，一般为json
         // 如果uid为空则是整个队伍，否则是私聊
         if (uid == 0) {
@@ -179,17 +209,17 @@ public class WebSocketOneToOne {
 
                 if (client != null) {
 
-                    client.session.getAsyncRemote().sendText(msg);
+                    client.session.getAsyncRemote().sendText(jsonObject.toString());
                 }
             }
         } else {
             // 发送单独的用户的
-            WebSocketOneToOne client = clients.getOrDefault(uid, null);
+            WebSocketOneToOne client = clients.getOrDefault(receive_id, null);
             // 这里需开设一个全局类批量加入消息缓冲队列录入数据库(私人消息），不能直接录入防止卡顿
             // 不管有没有都要加入数据库的历史记录
 
             if (client != null) {
-                client.session.getAsyncRemote().sendText(msg);
+                client.session.getAsyncRemote().sendText(jsonObject.toJSONString());
             }
         }
     }
