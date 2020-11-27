@@ -27,6 +27,13 @@ public interface CollectService {
     Object GetCollectContest(User user);
 
     /**
+     * 查看自己收藏的所有证书
+     * @param user
+     * @return
+     */
+    Object GetCollectCertificate(User user);
+
+    /**
      * 用于给出指定竞赛的收藏状态
      * @param contestId
      * @param user

@@ -4,3 +4,6 @@ spring:
   messages:
     basename: ValidationMessages
     encoding: utf-8
+  elasticsearch:
+    rest:
+      uris: 123.57.110.115:9200
