@@ -12,8 +12,8 @@ import tk.mybatis.spring.annotation.MapperScan;
 @EnableAsync
 @EnableCaching
 @MapperScan("softwork.mapper")
-public class Contest {
+public class Contest8005 {
     public static void main(String[] args) {
-        SpringApplication.run(Contest.class,args);
+        SpringApplication.run(Contest8005.class,args);
     }
 }
