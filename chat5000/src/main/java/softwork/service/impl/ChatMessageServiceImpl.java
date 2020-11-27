@@ -5,7 +5,12 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import softwork.mapper.ChatMessageMapper;
+import softwork.mapper.TeamMapper;
+import softwork.mapper.TeamPartnerMapper;
+import softwork.mapper.UserMapper;
 import softwork.pojo.entities.ChatMessage;
+import softwork.pojo.entities.Team;
+import softwork.pojo.entities.TeamPartner;
 import softwork.pojo.entities.User;
 import softwork.pojo.vo.ChatMessageVO;
 import softwork.service.ChatMessageService;
@@ -20,6 +25,12 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     ChatMessageMapper chatMessageMapper;
     @Autowired
     RabbitTemplate rabbitTemplate;
+    @Autowired
+    TeamMapper teamMapper;
+    @Autowired
+    TeamPartnerMapper teamPartnerMapper;
+    @Autowired
+    UserMapper userMapper;
 
     public void save(ChatMessage message) {
         chatMessageMapper.insert(message);
@@ -50,7 +61,27 @@ public class ChatMessageServiceImpl implements ChatMessageService {
         return messageVOS;
     }
 
-    public void SendQueue(Map<String,String> map){
+    public List<Integer> GetTeamUidList(Integer tid){
+        List<Integer> uids = new ArrayList<>();
+        Team team = teamMapper.selectByPrimaryKey(tid);
+        Integer leaderId = team.getOwnerid();
+        uids.add(leaderId);
+
+        //找出所有队友
+        TeamPartner findByTid = new TeamPartner();
+        findByTid.setTid(tid);
+        List<TeamPartner> teamPartners = teamPartnerMapper.select(findByTid);
+        //将他们的uid插入list
+        for(TeamPartner teamPartner:teamPartners){
+            if(teamPartner.getUid() == leaderId){
+                continue;
+            }
+            uids.add(teamPartner.getUid());
+        }
+        return uids;
+    }
+
+    public void SendQueue(Map<String, Object> map){
         rabbitTemplate.convertAndSend("ChatMessageQueue", "ChatMessageRoute", map);
     }
 
