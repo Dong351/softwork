@@ -3,12 +3,15 @@ package softwork.service.impl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import softwork.mapper.CertificateMapper;
 import softwork.mapper.CollectMapper;
 import softwork.mapper.ContestMapper;
+import softwork.pojo.entities.Certificate;
 import softwork.pojo.entities.Collect;
 import softwork.pojo.entities.Contest;
 import softwork.pojo.entities.User;
 import softwork.pojo.vo.CollectContestListVO;
+import softwork.pojo.vo.CollectCertificateListVO;
 import softwork.service.CollectService;
 
 import java.util.ArrayList;
@@ -22,6 +25,8 @@ public class CollectServiceImpl implements CollectService {
     CollectMapper collectMapper;
     @Autowired
     ContestMapper contestMapper;
+    @Autowired
+    CertificateMapper certificateMapper;
 
     @Override
     public Object CollectContest(Integer contestId, User user) {
@@ -113,6 +118,50 @@ public class CollectServiceImpl implements CollectService {
             collectContestListVOS.add(collectContestListVO);
         }
         return collectContestListVOS;
+    }
+
+    @Override
+    public Object GetCollectCertificate(User user) {
+        Collect findJoinedCertificate = new Collect();
+        List<CollectCertificateListVO> collectCertificateListVOS = new ArrayList<>();
+        findJoinedCertificate.setUid(user.getId());
+        findJoinedCertificate.setType(2);
+        List<Collect> certificateCollects = collectMapper.select(findJoinedCertificate);
+        for(Collect collect:certificateCollects){
+            Certificate certificate = certificateMapper.GetListVOById(collect.getData_id());
+            System.out.println(certificate);
+            CollectCertificateListVO collectcertificateListVO = new CollectCertificateListVO();
+            BeanUtils.copyProperties(certificate,collectcertificateListVO);
+            collectcertificateListVO.setCertificateId(collect.getData_id());
+            collectcertificateListVO.setCertificateName(certificate.getName());
+            collectcertificateListVO.setViews(certificate.getWatched());
+
+            //计算时间差
+            long nowTime = new Date().getTime();
+            long startTime = certificate.getEnroll_start().getTime();
+            long endTime = certificate.getEnroll_end().getTime();
+            long nd = 1000 * 24 * 60 * 60;
+            if(startTime > nowTime){
+                long diff = startTime - nowTime;
+                long days = diff / nd;
+                collectcertificateListVO.setStatus(1);
+                collectcertificateListVO.setRestTime("离报名开始还有"+days+"天");
+            }
+            else if(startTime < nowTime && nowTime < endTime){
+                long diff = endTime - nowTime;
+                long days = diff / nd;
+                collectcertificateListVO.setStatus(2);
+                collectcertificateListVO.setRestTime("离报名结束还有"+days+"天");
+            }
+            else {
+                collectcertificateListVO.setStatus(0);
+                collectcertificateListVO.setRestTime("报名已截止");
+            }
+
+            collectcertificateListVO.setCollections(collectMapper.getContestCollections(collect.getData_id()));
+            collectCertificateListVOS.add(collectcertificateListVO);
+        }
+        return collectCertificateListVOS;
     }
 
     @Override
