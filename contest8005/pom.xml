@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>contest</artifactId>
+    <artifactId>contest8005</artifactId>
 
     <dependencies>
         <dependency>

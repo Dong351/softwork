@@ -6,7 +6,7 @@ spring:
     url: jdbc:mysql://101.132.132.173:3306/softwork?serverTimezone=Asia/Shanghai&characterEncoding=UTF-8
     type: com.alibaba.druid.pool.DruidDataSource
   application:
-    name: contest
+    name: certificate
   cloud:
     nacos:
       discovery:
