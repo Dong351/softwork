@@ -15,7 +15,7 @@
         <module>message8600</module>
         <module>upload3000</module>
         <module>chat5000</module>
-        <module>contest</module>
+        <module>contest8005</module>
         <module>route8700</module>
     </modules>
     <packaging>pom</packaging>

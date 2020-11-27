@@ -1,6 +1,7 @@
 package softwork.mapper;
 
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 import softwork.pojo.entities.Contest;
 import tk.mybatis.mapper.common.BaseMapper;
@@ -20,4 +21,6 @@ public interface ContestMapper extends BaseMapper<Contest> {
     @Select("select DISTINCT level from contest")
     List<String> getContestLevel();
 
+    @Update("update contest set watched = watched + 1 where id = #{id}")
+    void addWatched(String id);
 }

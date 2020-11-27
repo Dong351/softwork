@@ -60,6 +60,7 @@ public class ContestServiceImpl implements ContestService {
 
     @Override
     public Contest getInfoByID(String id) {
+        contestMapper.addWatched(id);
         return contestMapper.selectByPrimaryKey(id);
     }
 
@@ -85,7 +86,7 @@ public class ContestServiceImpl implements ContestService {
         PageRequest page = PageRequest.of(dto.getPageNum()-1,dto.getPageSize(),sort);
         //query设置
         NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder()
-                .withQuery(queryStringQuery(keyword))
+                .withQuery(queryStringQuery("\""+keyword+"\""))
                 .withFields("id","name","originator","type","level","enrollStart","enrollEnd","contestStart","contestEnd","picUrl")
                 .withPageable(page);
         //对应level与Type
