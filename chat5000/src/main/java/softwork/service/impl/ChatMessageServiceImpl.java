@@ -12,6 +12,7 @@ import softwork.pojo.entities.ChatMessage;
 import softwork.pojo.entities.Team;
 import softwork.pojo.entities.TeamPartner;
 import softwork.pojo.entities.User;
+import softwork.pojo.vo.ChatMessagePreVO;
 import softwork.pojo.vo.ChatMessageVO;
 import softwork.service.ChatMessageService;
 
@@ -52,13 +53,76 @@ public class ChatMessageServiceImpl implements ChatMessageService {
         List<ChatMessageVO> messageVOS = new ArrayList<>();
         for(ChatMessage chatMessage:singleMessages){
             ChatMessageVO chatMessageVO = new ChatMessageVO();
-            BeanUtils.copyProperties(chatMessage,chatMessageVO);
-            chatMessageVO.setId(chatMessage.getMid());
+            BeanUtils.copyProperties(chatMessage,chatMessageVO);chatMessageVO.setId(chatMessage.getMid());
             chatMessageVO.setTime(chatMessage.getCreate_time());
 
             messageVOS.add(chatMessageVO);
         }
+
+
+
+
         return messageVOS;
+    }
+
+    @Override
+    public Object GetChatMessagePreview(User user) {
+        ChatMessage findByUid = new ChatMessage();
+        findByUid.setSend_id(user.getId());
+
+        List<ChatMessage> chatMessages1 = chatMessageMapper.findListGroupByRecId(user.getId());
+        List<ChatMessage> chatMessages2 = chatMessageMapper.findListGroupBySendId(user.getId());
+        List<ChatMessage> chatMessages = new ArrayList<>();
+        int mark = -1;
+        if(chatMessages1.size() > chatMessages2.size()){
+            chatMessages = chatMessages1;
+            mark = 1;
+        }
+        else {
+            chatMessages = chatMessages2;
+            mark = 2;
+        }
+
+        List<ChatMessagePreVO> chatMessagePreVOS = new ArrayList<>();
+        for(ChatMessage chatMessage:chatMessages){
+            if(mark == 1 && chatMessage.getReceive_id() == user.getId())    continue;
+            if(mark == 2 && chatMessage.getSend_id() == user.getId())       continue;
+
+            ChatMessagePreVO chatMessagePreVO = new ChatMessagePreVO();
+            BeanUtils.copyProperties(chatMessage,chatMessagePreVO);
+            chatMessagePreVO.setLast_time(chatMessage.getCreate_time());
+            Team team = teamMapper.selectByPrimaryKey(chatMessage.getRoom_id());
+            chatMessagePreVO.setTname(team.getName());
+            Integer avatar_id;
+            if(user.getId() == chatMessage.getSend_id())    avatar_id = chatMessage.getReceive_id();
+            else avatar_id = chatMessage.getSend_id();
+            User user1 = userMapper.selectByPrimaryKey(avatar_id);
+            chatMessagePreVO.setAvatar_url(user1.getAvatar_url());
+//            if(user1.getAvatar_url() == null)
+            chatMessagePreVO.setUname(user1.getUsername());
+            chatMessagePreVO.setUid(user1.getId());
+            chatMessagePreVO.setTid(team.getTid());
+
+            chatMessagePreVOS.add(chatMessagePreVO);
+        }
+
+        //将群聊记录插入
+        TeamPartner findTeamByUid = new TeamPartner();
+        findTeamByUid.setUid(user.getId());
+        List<TeamPartner> teams = teamPartnerMapper.select(findTeamByUid);
+        for (TeamPartner teamPartner:teams){
+            ChatMessage teamMessage = chatMessageMapper.findTeamMessageByTid(teamPartner.getTid());
+            if(teamMessage == null) continue;
+            ChatMessagePreVO chatMessageVO = new ChatMessagePreVO();
+            BeanUtils.copyProperties(teamMessage,chatMessageVO);
+            chatMessageVO.setTname(teamMapper.selectByPrimaryKey(teamPartner.getTid()).getName());
+            chatMessageVO.setLast_time(teamMessage.getCreate_time());
+            chatMessageVO.setTid(teamPartner.getTid());
+
+            chatMessagePreVOS.add(chatMessageVO);
+        }
+
+        return chatMessagePreVOS;
     }
 
     public List<Integer> GetTeamUidList(Integer tid){
@@ -74,8 +138,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
         //将他们的uid插入list
         for(TeamPartner teamPartner:teamPartners){
             if(teamPartner.getUid() == leaderId){
-                continue;
-            }
+                continue; }
             uids.add(teamPartner.getUid());
         }
         return uids;
@@ -84,5 +147,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     public void SendQueue(Map<String, Object> map){
         rabbitTemplate.convertAndSend("ChatMessageQueue", "ChatMessageRoute", map);
     }
+
+
 
 }

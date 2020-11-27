@@ -12,4 +12,10 @@ public interface ChatMessageService {
     Object Single(Integer uid, User user);
 
 
+    /**
+     * 查看消息预览
+      * @param user
+     * @return
+     */
+    Object GetChatMessagePreview(User user);
 }
