@@ -17,6 +17,7 @@
         <module>chat5000</module>
         <module>contest8005</module>
         <module>route8700</module>
+        <module>certificate6600</module>
     </modules>
     <packaging>pom</packaging>
 
