@@ -20,13 +20,21 @@ public class DirectReceiver {
     public void process(Map<String,Object> message) {
         System.out.println("DirectReceiver消费者收到消息  : " + message.toString());
         ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setReceive_id((Integer) message.get("receive_id"));
+        Integer receive_id = (Integer) message.get("receive_id");
+        if(receive_id == 0) {
+            chatMessage.setReceive_id(null);
+            chatMessage.setType(2);
+        }
+        else {
+            chatMessage.setReceive_id(receive_id);
+            chatMessage.setType(1);
+        }
         chatMessage.setContent((String) message.get("message"));
         chatMessage.setRoom_id(message.get("tid").toString());
         chatMessage.setCreate_time(new Date());
         chatMessage.setSend_id((Integer) message.get("send_id"));
         chatMessage.setReaded(0);
-        chatMessage.setType(1);
+
         chatMessageMapper.insert(chatMessage);
     }
 

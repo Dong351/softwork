@@ -29,6 +29,11 @@ public class ChatMessageController {
     }
 
 
+    @GetMapping("/chatPreview")
+    public WebAsyncTask<Object> GetChatMessagePreview(@Token User user){
+        return new WebAsyncTask<>(()-> JsonResult.ok(chatMessageService.GetChatMessagePreview(user)));
+    }
+
 
 
 }

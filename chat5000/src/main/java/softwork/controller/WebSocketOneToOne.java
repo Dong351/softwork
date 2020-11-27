@@ -6,7 +6,6 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-import softwork.exception.CommonException;
 import softwork.mapper.UserMapper;
 import softwork.service.impl.ChatMessageServiceImpl;
 import softwork.service.impl.UserServiceImpl;
@@ -161,7 +160,7 @@ public class WebSocketOneToOne {
         }
         if(in != 1){
             System.out.println("deny");
-            throw new CommonException("无效联系");
+//            throw new CommonException("无效联系");
         }
 
 
