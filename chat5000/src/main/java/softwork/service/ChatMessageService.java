@@ -12,4 +12,18 @@ public interface ChatMessageService {
     Object Single(Integer uid, User user);
 
 
+    /**
+     * 查看消息预览
+      * @param user
+     * @return
+     */
+    Object GetChatMessagePreview(User user);
+
+    /**
+     * 查看指定tid的队伍聊天记录
+     * @param tid
+     * @param user
+     * @return
+     */
+    Object TeamGetHistoryMessage(Integer tid, User user);
 }

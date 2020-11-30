@@ -43,6 +43,13 @@ public class CollectController {
         });
     }
 
+    @GetMapping("/certificate/get")
+    public WebAsyncTask<Object> GetCertificateContest(@Token User user){
+        return new WebAsyncTask<>(()->{
+            return JsonResult.ok(collectService.GetCollectCertificate(user));
+        });
+    }
+
     @GetMapping("/contest/collectStatus/{contestId}")
     public WebAsyncTask<Object> ContestCollectStatus(@PathVariable Integer contestId,@Token User user){
         return new WebAsyncTask<>(()->{

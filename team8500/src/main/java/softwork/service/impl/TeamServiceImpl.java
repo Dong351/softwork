@@ -257,4 +257,9 @@ public class TeamServiceImpl implements TeamService {
         teamMapper.delete(team);
         return null;
     }
+
+    @Override
+    public Object KickOut(Integer uid, User user) {
+        return null;
+    }
 }
