@@ -63,4 +63,12 @@ public interface TeamService {
      * @return
      */
     Object BreakTeam(Integer teamid, User user);
+
+    /**
+     * 队长将队友踢出队伍
+     * @param uid
+     * @param user
+     * @return
+     */
+    Object KickOut(Integer uid, User user);
 }

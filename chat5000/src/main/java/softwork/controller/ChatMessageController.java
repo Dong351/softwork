@@ -34,6 +34,11 @@ public class ChatMessageController {
         return new WebAsyncTask<>(()-> JsonResult.ok(chatMessageService.GetChatMessagePreview(user)));
     }
 
+    @GetMapping("/teamHistoryMessage/{tid}")
+    public WebAsyncTask<Object> TeamGetHistoryMessage(@PathVariable Integer tid,
+                                                        @Token User user){
+        return new WebAsyncTask<>(()-> JsonResult.ok(chatMessageService.TeamGetHistoryMessage(tid,user)));
+    }
 
 
 }

@@ -1,5 +1,6 @@
 package softwork.mapper;
 
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 import softwork.pojo.entities.ChatMessage;
@@ -24,4 +25,11 @@ public interface ChatMessageMapper extends BaseMapper<ChatMessage> {
     @Select("select * from (select * from chatMessage order by create_time desc)tmp " +
             "WHERE room_id=#{tid} group by room_id order by create_time desc")
     ChatMessage findTeamMessageByTid(Integer tid);
+
+//    @Select("")
+//    ChatMessage findTeamMessage(Integer tid);
+
+    @Select("select * from chatMessage " +
+            "WHERE (send_id=#{uid} and receive_id=#{uid1}) or (receive_id=#{uid} and send_id=#{uid1}) order by create_time")
+    List<ChatMessage> findSingleMessages(@Param("uid") Integer uid, @Param("uid1") Integer uid1);
 }

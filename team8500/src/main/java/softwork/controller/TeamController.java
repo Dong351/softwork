@@ -73,4 +73,10 @@ public class TeamController {
         });
     }
 
+    @DeleteMapping("/kickPartner/{uid}")
+    public WebAsyncTask<Object> KickOut(@PathVariable Integer uid,@Token User user){
+        return new WebAsyncTask<>(()->{
+            return JsonResult.ok(teamService.KickOut(uid,user));
+        });
+    }
 }

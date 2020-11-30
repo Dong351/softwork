@@ -21,7 +21,7 @@ public class ChatMessagePreVO {
 
     private String content;
 
-    @JsonFormat(pattern = "MM-dd HH:MM:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:MM:ss")
     private Date last_time;
 
 //    private Integer unread;
