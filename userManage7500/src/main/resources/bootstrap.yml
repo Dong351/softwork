@@ -1,0 +1,16 @@
+spring:
+  #部署时使用的配置文件
+  profiles:
+    active: pro
+  messages:
+    basename: ValidationMessages
+    encoding: utf-8
+  #返回的json设置
+#  jackson:
+#    default-property-inclusion: non_null
+  servlet:
+    multipart:
+      max-request-size: 10MB
+      max-file-size: 10MB
+server:
+  port: 7500

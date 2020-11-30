@@ -114,3 +114,5 @@ secrets.yml
 .gradletasknamecache
 .sts4-cache
 /certificate6600/src/test/java/test.java
+
+**/resources
