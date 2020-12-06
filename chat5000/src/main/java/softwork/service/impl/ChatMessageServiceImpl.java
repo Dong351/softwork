@@ -42,29 +42,14 @@ public class ChatMessageServiceImpl implements ChatMessageService {
         System.out.println(user);
         Integer uid1 = user.getId();
         System.out.println(uid1+" "+uid);
-<<<<<<< HEAD
 
         List<ChatMessage> singleMessages = chatMessageMapper.findSingleMessages(uid,uid1);
-=======
-        String tid;
-        if(uid1 < uid){
-             tid = uid1.toString() + "-" + uid.toString();
-        }
-        else tid = uid.toString() + "-" + uid1.toString();
-        ChatMessage findSingleMessage = new ChatMessage();
-        findSingleMessage.setRoom_id(tid);
-        List<ChatMessage> singleMessages = chatMessageMapper.select(findSingleMessage);
->>>>>>> 24835b4b3e8f1392d13c102c2629746fcb5ee234
 //        List<ChatMessage> singleMessages = chatMessageMapper.findListOrderByTime(tid);
         List<ChatMessageVO> messageVOS = new ArrayList<>();
         for(ChatMessage chatMessage:singleMessages){
             ChatMessageVO chatMessageVO = new ChatMessageVO();
-<<<<<<< HEAD
             BeanUtils.copyProperties(chatMessage,chatMessageVO);
             chatMessageVO.setId(chatMessage.getMid());
-=======
-            BeanUtils.copyProperties(chatMessage,chatMessageVO);chatMessageVO.setId(chatMessage.getMid());
->>>>>>> 24835b4b3e8f1392d13c102c2629746fcb5ee234
             chatMessageVO.setTime(chatMessage.getCreate_time());
 
             messageVOS.add(chatMessageVO);
@@ -114,10 +99,6 @@ public class ChatMessageServiceImpl implements ChatMessageService {
             chatMessagePreVO.setUid(user1.getId());
             chatMessagePreVO.setTid(team.getTid());
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 24835b4b3e8f1392d13c102c2629746fcb5ee234
             chatMessagePreVOS.add(chatMessagePreVO);
         }
 
@@ -133,11 +114,8 @@ public class ChatMessageServiceImpl implements ChatMessageService {
             chatMessageVO.setTname(teamMapper.selectByPrimaryKey(teamPartner.getTid()).getName());
             chatMessageVO.setLast_time(teamMessage.getCreate_time());
             chatMessageVO.setTid(teamPartner.getTid());
-<<<<<<< HEAD
             chatMessageVO.setUid(teamMessage.getSend_id());
             chatMessageVO.setUname(userMapper.selectByPrimaryKey(teamMessage.getSend_id()).getUsername());
-=======
->>>>>>> 24835b4b3e8f1392d13c102c2629746fcb5ee234
 
             chatMessagePreVOS.add(chatMessageVO);
         }
@@ -169,7 +147,6 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     }
 
 
-<<<<<<< HEAD
     @Override
     public Object TeamGetHistoryMessage(Integer tid, User user) {
         ChatMessage findByTid = new ChatMessage();
@@ -187,7 +164,5 @@ public class ChatMessageServiceImpl implements ChatMessageService {
         }
         return chatTeamMessageVOS;
     }
-=======
 
->>>>>>> 24835b4b3e8f1392d13c102c2629746fcb5ee234
 }
